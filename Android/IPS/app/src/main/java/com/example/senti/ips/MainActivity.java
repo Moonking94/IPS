@@ -283,9 +283,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                 // Need to do logic on which router to choose
 
-
-
-
                 // For testing purposes
                 for(int i = 0;i<listRI.size();i++) {
                     if(listRI.get(i).getSsid().equals("LenovoS650")) {
