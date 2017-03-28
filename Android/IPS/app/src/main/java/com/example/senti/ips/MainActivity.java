@@ -61,7 +61,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         listRI = new LinkedList<>();
         ipsScan = true;
 
-        //int num = 2;
         WifiManager wifi = (WifiManager) getApplicationContext().getSystemService(getApplicationContext().WIFI_SERVICE);
         int state = wifi.getWifiState();
         WifiInfo info = wifi.getConnectionInfo(); // Get the connected wifi info
@@ -96,7 +95,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             System.out.println("SSID = " + result.get(i).SSID + " DISTANCE = " + distance);
 
 //            if(result.get(i).SSID.equals("Jycans")) {
-//                indexNum = i;
 //                saveData();
 //            }
         }
