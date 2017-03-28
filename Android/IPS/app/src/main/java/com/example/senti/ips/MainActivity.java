@@ -33,7 +33,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private TextView txtResult, txtWifiInfoResult, txtWifiStateResult, txtIsWifiEnabledResult;
     private Button btnStart, btnStop;
 
-//    private String xaxis, yaxis, zaxis, userId;
+    private String xaxis, yaxis, zaxis, userId;
     private volatile boolean ipsScan;
     private List<RouterInfo> listRI;
 
