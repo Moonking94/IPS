@@ -190,6 +190,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 //        queue.add(postRequest);
 //    }
 
+    // Send current coordinate to server
     private void sendCoordinate() {
         String url = getApplicationContext().getString(R.string.raspberrypi_address) + getApplicationContext().getString(R.string.findCoordinate);
 
