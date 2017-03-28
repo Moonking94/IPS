@@ -33,7 +33,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private TextView txtResult, txtWifiInfoResult, txtWifiStateResult, txtIsWifiEnabledResult;
     private Button btnStart, btnStop;
 
-    private String xaxis, yaxis, zaxis, userId;
     private volatile boolean ipsScan;
     private List<RouterInfo> listRI;
 
@@ -91,12 +90,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
             RouterInfo ri = new RouterInfo(ssid, bssid, frequency, wifiDb);
             listRI.add(ri);
-
-            System.out.println("SSID = " + result.get(i).SSID + " DISTANCE = " + distance);
-
-//            if(result.get(i).SSID.equals("Jycans")) {
-//                saveData();
-//            }
         }
 
         sendCoordinate();
@@ -111,36 +104,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 //                        runOnUiThread(new Runnable() {
 //                            @Override
 //                            public void run() {
-//                                WifiManager wifi = (WifiManager) getApplicationContext().getSystemService(getApplicationContext().WIFI_SERVICE);
-//                                int state = wifi.getWifiState();
-//                                WifiInfo info = wifi.getConnectionInfo(); // Get the connected wifi info
 //
-//                                wifi.startScan();
-//                                List<ScanResult> result = wifi.getScanResults();
-//
-//                                txtWifiInfoResult.setText("Wifi info: " + info);
-//                                txtWifiStateResult.setText("Wifi state: " + state);
-//                                txtIsWifiEnabledResult.setText("Is Wifi Enabled ? : " + wifi.isWifiEnabled());
-//                                System.out.println("Scan result: " + result);
-//                                System.out.println(wifi.isScanAlwaysAvailable());
-//
-//                                txtResult.setText("Result\n");// Reset text view
-//
-//                                for(int i = 0;i<result.size();i++) {
-//                                    double wifiDb = result.get(i).level;
-//                                    double frequency = result.get(i).frequency;
-//                                    double distance = calculateDistance(wifiDb, frequency);
-//
-//                                    txtResult.append("SSID: " + result.get(i).SSID + "\n");
-//                                    txtResult.append("BSSID" + result.get(i).BSSID + "\n");
-//                                    txtResult.append("Level: " + wifiDb + "\n");
-//                                    txtResult.append("Frequency: " + frequency + "\n");
-//                                    txtResult.append("Distance: " + distance + " meter\n\n");
-//
-//                                    if(result.get(i).SSID.equals("Jycans")) {
-//                                        saveData(String.format("%.2f", distance), "2", "3", "1");
-//                                    }
-//                                }
 //                            }
 //                        });
 //                    }
@@ -318,15 +282,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private double calculateDistance(double signalLevelInDb, double freqInMHz) {
         double exp = (27.55 - (20 * Math.log10(freqInMHz)) + Math.abs(signalLevelInDb)) / 20.0;
-        //FSPL (dB) = 20log10(d) + 20log10(f) + K
-
-        //d = distance
-        //f = frequency
-        //K= constant that depends on the units used for d and f
-        //If d is measured in kilometers, f in MHz, the formula is:
-
-        //FSPL (dB) = 20log10(d)+ 20log10(f) + 32.44
-        //Distance (km) = 10(Free Space Path Loss – 32.44 – 20log10(f))/20
         return Math.pow(10.0, exp);
     }
 }
