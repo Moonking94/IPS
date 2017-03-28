@@ -303,8 +303,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     }
                 }
 
-                System.out.println(params);
-
                 return params;
             }
         };
