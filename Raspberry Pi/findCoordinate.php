@@ -1,8 +1,8 @@
 <?php
 $host = "localhost";
-$user = "root";
-$pass = "root";
-$database = "SafeHome";
+$username = "root";
+$password = "root";
+$database = "db_ips";
 
 echo "
 <html>
@@ -80,14 +80,14 @@ echo "
 				
 				if(mysqli_num_rows($resultSelectPosition) > 0) {
 					while($row = mysqli_fetch_array($resultSelectPosition, MYSQLI_BOTH)) {
-						array_push($pointInfo, array($row["router_id"], $row["signal_str"])));
+						array_push($pointInfo, array($row["router_id"], $row["signal_str"]));
 					}
 				}
 				
 				$pCo = array();
 	
 				for($i = 0;$i<count($pointInfo);$i++) {
-					$query = "SELECT xaxis, yaxis, zaxis FROM router_profile where router_id = '" . $pointInfo[$i][0] . "' ORDER BY router_id";
+					$query = "SELECT xaxis, yaxis, zaxis, frequency FROM router_profile where router_id = '" . $pointInfo[$i][0] . "' ORDER BY router_id";
 					$resultSelectRouter = mysqli_query($conn, $query);
 					
 					if(mysqli_num_rows($resultSelectRouter) > 0) {
@@ -97,14 +97,20 @@ echo "
 					}
 				}
 				
-				for($rowCount = 0;$rowCount<count();$rowCount++) {
-					
+				//exp = (27.55 - (20 * Math.log10(freqInMHz)) + Math.abs(signalLevelInDb)) / 20.0;
+				//Math.pow(10.0, exp);
+				
+				$rad = array();
+				
+				for($rowCount = 0;$rowCount<count($pointInfo);$rowCount++) {
+					$distance = pow(10, (27.55 - (20 * log10($pCo[$rowCount][3])) + abs($pointInfo[$rowCount][1])) / 20.0);
+					array_push($rad, array($pointInfo[$rowCount][0], $distance));
 				}
 				
 				echo "
-				p1 = { x:   " . $pCo[0][0] . ", y:   " . $pCo[0][1] . ", z:  " . $pCo[0][2] . ", r: 325 }; <!-- Red -->
-				p2 = { x:   " . $pCo[1][0] . ", y:   " . $pCo[1][1] . ", z:  " . $pCo[1][2] . ", r: 325 }; <!-- Green -->
-				p3 = { x:   " . $pCo[2][0] . ", y:   " . $pCo[2][1] . ", z:  " . $pCo[2][2] . ", r: 325 }; <!-- Blue -->
+				p1 = { x:   " . $pCo[0][0] . ", y:   " . $pCo[0][1] . ", z:  " . $pCo[0][2] . ", r: " . $rad[0][1] . " }; <!-- Red -->
+				p2 = { x:   " . $pCo[1][0] . ", y:   " . $pCo[1][1] . ", z:  " . $pCo[1][2] . ", r: " . $rad[1][1] . " }; <!-- Green -->
+				p3 = { x:   " . $pCo[2][0] . ", y:   " . $pCo[2][1] . ", z:  " . $pCo[2][2] . ", r: " . $rad[2][1] . " }; <!-- Blue -->
 
 				p4 = trilaterate(p1, p2, p3, true);
 
