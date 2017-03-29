@@ -3,8 +3,7 @@ $host = "localhost";
 $user = "root";
 $pass = "root";
 $database = "SafeHome";
-?>
-<?php
+
 echo "
 <html>
 	<head>
@@ -70,31 +69,38 @@ echo "
 			{
 				canvas = document.getElementById(\"canvas1\");
 				ctx = canvas.getContext(\"2d\");";
-
-				$p1 = $_POST['p1'];
-				$p2 = $_POST['p2'];
-				$p3 = $_POST['p3'];
-
-				$pointInfo = array(
-				array($p1[0], $p1[1], $p1[2], $p1[3]), 
-				array($p2[0], $p2[1], $p2[2], $p2[3]), 
-				array($p3[0], $p3[1], $p3[2], $p3[3]));
-
+				
 				$conn = mysqli_connect($hostname, $username, $password, $database);
+				
+				$query = "SELECT * FROM user_position WHERE user_id = 1 ORDER BY router_id";
+				
+				$resultSelectPosition = mysqli_query($conn, $query);
+				
+				$pointInfo = array();
+				
+				if(mysqli_num_rows($resultSelectPosition) > 0) {
+					while($row = mysqli_fetch_array($resultSelectPosition, MYSQLI_BOTH)) {
+						array_push($pointInfo, array($row["router_id"], $row["signal_str"])));
+					}
+				}
 				
 				$pCo = array();
 	
 				for($i = 0;$i<count($pointInfo);$i++) {
-					$query = "SELECT xaxis, yaxis, zaxis FROM router_profile where bssid = '" . $pointInfo[$i][1] . "'";
-					$resultSelect = mysqli_query($conn, $query);
+					$query = "SELECT xaxis, yaxis, zaxis FROM router_profile where router_id = '" . $pointInfo[$i][0] . "' ORDER BY router_id";
+					$resultSelectRouter = mysqli_query($conn, $query);
 					
-					if(mysqli_num_rows($resultSelect) > 0) {
-						while($row = mysqli_fetch_array($resultSelect, MYSQLI_BOTH)) {
-							array_push($pCo, array($row["xaxis"], $row["yaxis"], $row["zaxis"]));
+					if(mysqli_num_rows($resultSelectRouter) > 0) {
+						while($row = mysqli_fetch_array($resultSelectRouter, MYSQLI_BOTH)) {
+							array_push($pCo, array($row["xaxis"], $row["yaxis"], $row["zaxis"], $row["frequency"]));
 						}
 					}
 				}
-
+				
+				for($rowCount = 0;$rowCount<count();$rowCount++) {
+					
+				}
+				
 				echo "
 				p1 = { x:   " . $pCo[0][0] . ", y:   " . $pCo[0][1] . ", z:  " . $pCo[0][2] . ", r: 325 }; <!-- Red -->
 				p2 = { x:   " . $pCo[1][0] . ", y:   " . $pCo[1][1] . ", z:  " . $pCo[1][2] . ", r: 325 }; <!-- Green -->

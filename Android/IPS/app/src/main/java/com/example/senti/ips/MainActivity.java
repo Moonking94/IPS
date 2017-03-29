@@ -192,7 +192,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     // Send current coordinate to server
     private void sendCoordinate() {
-        String url = getApplicationContext().getString(R.string.raspberrypi_address) + getApplicationContext().getString(R.string.findCoordinate);
+        String url = getApplicationContext().getString(R.string.raspberrypi_address) + getApplicationContext().getString(R.string.saveCurrentPosition);
 
         StringRequest postRequest = new StringRequest(
                 Request.Method.POST,
@@ -208,9 +208,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             if (!error) {
                                 Toast.makeText(getApplicationContext(), jsonResponse.getString("responseMsg"),
                                         Toast.LENGTH_LONG).show();
+                                System.out.println(">>>>>>>>>>" + jsonResponse.getString("responseMsg") + "<<<<<<<<<<");
                             } else {
                                 Toast.makeText(getApplicationContext(), jsonResponse.getString("responseMsg"),
                                         Toast.LENGTH_LONG).show();
+                                System.out.println(">>>>>>>>>>" + jsonResponse.getString("responseMsg") + "<<<<<<<<<<");
                             }
 
                         } catch (JSONException e) {
@@ -228,10 +230,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 Log.e("MainActivity", "Save Error: " + error.getMessage());
                 if(error instanceof NoConnectionError) {
                     Toast.makeText(getApplicationContext(), "Save failed:" + "Unable to connect to the server", Toast.LENGTH_LONG).show();
-                    //alert.showAlertDialog(LoginActivity.this, "Login failed", "Error connecting to the server", false);
                 } else if (error instanceof TimeoutError) {
                     Toast.makeText(getApplicationContext(), "Save failed: " + "Connection time out", Toast.LENGTH_LONG).show();
-                    //alert.showAlertDialog(LoginActivity.this, "Login failed", "Connection time out", false);
                 }
             }
         }) {
@@ -243,24 +243,30 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             protected Map<String, String> getParams() {
 
                 Map<String, String> params = new HashMap<>();
-
+                String userLogged = "1";
                 // Need to do logic on which router to choose
 
                 // For testing purposes
-                for(int i = 0;i<listRI.size();i++) {
-                    if(listRI.get(i).getSsid().equals("LenovoS650")) {
-                        params.put("p1[0]", listRI.get(i).getSsid());
-                        params.put("p1[1]", listRI.get(i).getFrequency() + "");
-                        params.put("p1[2]", listRI.get(i).getSignalLvl() + "");
-                    } else if(listRI.get(i).getSsid().equals("Jycans")) {
-                        params.put("p2[0]", listRI.get(i).getSsid());
-                        params.put("p2[1]", listRI.get(i).getFrequency() + "");
-                        params.put("p2[2]", listRI.get(i).getSignalLvl() + "");
-                    } else if(listRI.get(i).getSsid().equals("SMEAP01")) {
-                        params.put("p3[0]", listRI.get(i).getSsid());
-                        params.put("p3[1]", listRI.get(i).getFrequency() + "");
-                        params.put("p3[2]", listRI.get(i).getSignalLvl() + "");
+                if(listRI.size() > 0 && !listRI.isEmpty()) {
+                    for (int i = 0; i < listRI.size(); i++) {
+                        System.out.println("SSID: " + listRI.get(i).getSsid());
+                        System.out.println("BSSID: " + listRI.get(i).getBssid());
+                        System.out.println("BSSID: " + listRI.get(i).getFrequency());
+                        if (listRI.get(i).getBssid().equals("6e:5f:1c:d5:c8:b1")) { // LenovoS650 BSSID
+                            params.put("p1[0]", listRI.get(i).getSsid());
+                            params.put("p1[1]", listRI.get(i).getBssid());
+                            params.put("p1[2]", listRI.get(i).getSignalLvl() + "");
+                        } else if (listRI.get(i).getBssid().equals("e8:50:8b:07:43:fb")) { // Jycans BSSID
+                            params.put("p2[0]", listRI.get(i).getSsid());
+                            params.put("p2[1]", listRI.get(i).getBssid());
+                            params.put("p2[2]", listRI.get(i).getSignalLvl() + "");
+                        } else if (listRI.get(i).getBssid().equals("90:ef:68:c1:20:d6")) { // SMEAP01 BSSID(2462Mhz/2.462Ghz)
+                            params.put("p3[0]", listRI.get(i).getSsid());
+                            params.put("p3[1]", listRI.get(i).getBssid() + "");
+                            params.put("p3[2]", listRI.get(i).getSignalLvl() + "");
+                        }
                     }
+                    params.put("userId", userLogged);
                 }
 
                 return params;
