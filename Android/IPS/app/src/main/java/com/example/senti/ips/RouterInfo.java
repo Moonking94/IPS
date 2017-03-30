@@ -48,7 +48,5 @@ public class RouterInfo {
         return signalLvl;
     }
 
-    public void setSignalLvl(double signalLvl) {
-        this.signalLvl = signalLvl;
-    }
+    public void setSignalLvl(double signalLvl) { this.signalLvl = signalLvl; }
 }

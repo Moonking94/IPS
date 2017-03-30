@@ -2,6 +2,6 @@
     <string name="app_name">IPS</string>
     <string name="raspberrypi_address">http://192.168.43.215</string>
     <!--<string name="raspberrypi_address">http://192.168.0.110</string>-->
-    <string name="saveCurrentPosition">/db_currentposition.php</string>
+    <string name="updatePosition">/db_updateposition.php</string>
     <string name="findCoordinate">/findCoordinate.php</string>
 </resources>

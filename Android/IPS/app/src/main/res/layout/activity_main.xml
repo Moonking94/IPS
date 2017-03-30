@@ -13,12 +13,6 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal">
 
-        <!--<TextView-->
-            <!--android:id="@+id/txtWifiInfo"-->
-            <!--android:layout_width="wrap_content"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:text="Wifi Info: " />-->
-
         <TextView
             android:id="@+id/txtWifiInfoResult"
             android:layout_width="wrap_content"
@@ -32,12 +26,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal">
-
-        <!--<TextView-->
-            <!--android:id="@+id/txtWifiState"-->
-            <!--android:layout_width="wrap_content"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:text="Wifi State: " />-->
 
         <TextView
             android:id="@+id/txtWifiStateResult"
@@ -53,12 +41,6 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:layout_marginBottom="50dp">
-
-        <!--<TextView-->
-            <!--android:id="@+id/txtIsWifiEnabled"-->
-            <!--android:layout_width="wrap_content"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:text="Is Wifi Enabled: "/>-->
 
         <TextView
             android:id="@+id/txtIsWifiEnabledResult"

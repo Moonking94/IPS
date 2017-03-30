@@ -125,74 +125,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         txtResult.setText("");
     }
 
-//    private void saveData() {
-//        String url = getApplicationContext().getString(R.string.raspberrypi_address) + getApplicationContext().getString(R.string.saveCurrentPosition);
-//
-//        StringRequest postRequest = new StringRequest(
-//                Request.Method.POST,
-//                url,
-//                new Response.Listener<String>() {
-//                    @Override
-//                    public void onResponse(String response) {
-//                        try {
-//
-//                            JSONObject jsonResponse = new JSONObject(response);
-//                            boolean error = jsonResponse.getBoolean("responseError");
-//
-//                            if (!error) {
-//                                Toast.makeText(getApplicationContext(), jsonResponse.getString("responseMsg"),
-//                                        Toast.LENGTH_LONG).show();
-//                            } else {
-//                                Toast.makeText(getApplicationContext(), jsonResponse.getString("responseMsg"),
-//                                        Toast.LENGTH_LONG).show();
-//                            }
-//
-//                        } catch (JSONException e) {
-//                            e.printStackTrace();
-//                            Toast.makeText(getApplicationContext(), "JSON Error: " + e.getMessage(),
-//                                    Toast.LENGTH_LONG).show();
-//                        }
-//                    }
-//                }, new Response.ErrorListener() {
-//
-//            // Handle and prompt if there are any connection error
-//            @Override
-//            public void onErrorResponse(VolleyError error) {
-//                Log.e("MainActivity", "Save Error: " + error.getMessage());
-//                if(error instanceof NoConnectionError) {
-//                    Toast.makeText(getApplicationContext(), "Save failed:" + "Unable to connect to the server", Toast.LENGTH_LONG).show();
-//                    //alert.showAlertDialog(LoginActivity.this, "Login failed", "Error connecting to the server", false);
-//                } else if (error instanceof TimeoutError) {
-//                    Toast.makeText(getApplicationContext(), "Save failed: " + "Connection time out", Toast.LENGTH_LONG).show();
-//                    //alert.showAlertDialog(LoginActivity.this, "Login failed", "Connection time out", false);
-//                }
-//            }
-//        }) {
-//            /**
-//             * Use to POST the parameter to the server
-//             * @return - return variable contains the user credentials
-//             */
-//            @Override
-//            protected Map<String, String> getParams() {
-//
-//                Map<String, String> params = new HashMap<>();
-//
-//                params.put("xaxis", xaxis);
-//                params.put("yaxis", yaxis);
-//                params.put("zaxis", zaxis);
-//                params.put("userId", userId);
-//
-//                return params;
-//            }
-//        };
-//
-//        RequestQueue queue = Volley.newRequestQueue(this);
-//        queue.add(postRequest);
-//    }
-
     // Send current coordinate to server
     private void sendCoordinate() {
-        String url = getApplicationContext().getString(R.string.raspberrypi_address) + getApplicationContext().getString(R.string.saveCurrentPosition);
+        String url = getApplicationContext().getString(R.string.raspberrypi_address) + getApplicationContext().getString(R.string.updatePosition);
 
         StringRequest postRequest = new StringRequest(
                 Request.Method.POST,
