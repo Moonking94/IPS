@@ -180,6 +180,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 Map<String, String> params = new HashMap<>();
                 String userLogged = "1";
                 Boolean status = false;
+
                 // Need to do logic on which router to choose
 
                 // For testing purposes
