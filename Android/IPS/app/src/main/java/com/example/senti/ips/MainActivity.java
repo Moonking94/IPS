@@ -189,7 +189,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         System.out.println("BSSID: " + listRI.get(i).getBssid());
                         System.out.println("BSSID: " + listRI.get(i).getFrequency());
 
-                        if(listRI.get(i).getBssid().equals("18:a6:f7:0d:51:04")) { // PiAP
+                        if(listRI.get(i).getBssid().equals("18:a6:f7:0d:51:04")) { // PiAP 18:a6:f7:0d:51:04
                             params.put("p1[0]", listRI.get(i).getSsid());
                             params.put("p1[1]", listRI.get(i).getBssid());
                             params.put("p1[2]", listRI.get(i).getSignalLvl() + "");
