@@ -193,11 +193,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             params.put("p1[0]", listRI.get(i).getSsid());
                             params.put("p1[1]", listRI.get(i).getBssid());
                             params.put("p1[2]", listRI.get(i).getSignalLvl() + "");
-                        } else if (listRI.get(i).getBssid().equals("b8:27:eb:1b:c5:23")) { // b8:27:eb:1b:c5:23
+                        } else if (listRI.get(i).getBssid().equals("b8:27:eb:1b:c5:23")) { // MoonPiAP b8:27:eb:1b:c5:23
                             params.put("p2[0]", listRI.get(i).getSsid());
                             params.put("p2[1]", listRI.get(i).getBssid());
                             params.put("p2[2]", listRI.get(i).getSignalLvl() + "");
-                        } else if (listRI.get(i).getBssid().equals("b8:27:eb:81:20:99")) { // b8:27:eb:81:20:99
+                        } else if (listRI.get(i).getBssid().equals("b8:27:eb:81:20:99")) { // JeffPi b8:27:eb:81:20:99
                             params.put("p3[0]", listRI.get(i).getSsid());
                             params.put("p3[1]", listRI.get(i).getBssid());
                             params.put("p3[2]", listRI.get(i).getSignalLvl() + "");
