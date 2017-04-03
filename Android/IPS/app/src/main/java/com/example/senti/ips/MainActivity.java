@@ -90,6 +90,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
             RouterInfo ri = new RouterInfo(ssid, bssid, frequency, wifiDb);
             listRI.add(ri);
+            System.out.println(listRI);
         }
 
         sendCoordinate();
@@ -187,19 +188,43 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         System.out.println("SSID: " + listRI.get(i).getSsid());
                         System.out.println("BSSID: " + listRI.get(i).getBssid());
                         System.out.println("BSSID: " + listRI.get(i).getFrequency());
-                        if (listRI.get(i).getBssid().equals("6e:5f:1c:d5:c8:b1")) { // LenovoS650 BSSID
+
+                        if(listRI.get(i).getBssid().equals("18:a6:f7:0d:51:04")) { // PiAP
                             params.put("p1[0]", listRI.get(i).getSsid());
                             params.put("p1[1]", listRI.get(i).getBssid());
                             params.put("p1[2]", listRI.get(i).getSignalLvl() + "");
-                        } else if (listRI.get(i).getBssid().equals("e8:50:8b:07:43:fb")) { // Jycans BSSID
+                        } else if (listRI.get(i).getBssid().equals("b8:27:eb:1b:c5:23")) { // b8:27:eb:1b:c5:23
                             params.put("p2[0]", listRI.get(i).getSsid());
                             params.put("p2[1]", listRI.get(i).getBssid());
                             params.put("p2[2]", listRI.get(i).getSignalLvl() + "");
-                        } else if (listRI.get(i).getBssid().equals("90:ef:68:c1:20:d6")) { // SMEAP01 BSSID(2462Mhz/2.462Ghz)
+                        } else if (listRI.get(i).getBssid().equals("b8:27:eb:81:20:99")) { // b8:27:eb:81:20:99
                             params.put("p3[0]", listRI.get(i).getSsid());
-                            params.put("p3[1]", listRI.get(i).getBssid() + "");
+                            params.put("p3[1]", listRI.get(i).getBssid());
                             params.put("p3[2]", listRI.get(i).getSignalLvl() + "");
                         }
+//                        } else if (listRI.get(i).getBssid().equals("e8:50:8b:07:43:fb")) { // Jycans BSSID (Jeffrey)
+//                            params.put("p2[0]", listRI.get(i).getSsid());
+//                            params.put("p2[1]", listRI.get(i).getBssid());
+//                            params.put("p2[2]", listRI.get(i).getSignalLvl() + "");
+//                        } else if (listRI.get(i).getBssid().equals("38:a4:ed:68:02:e5")) { // RedMi (Louis)
+//                            params.put("p3[0]", listRI.get(i).getSsid());
+//                            params.put("p3[1]", listRI.get(i).getBssid());
+//                            params.put("p3[2]", listRI.get(i).getSignalLvl() + "");
+//                        }
+//                        else if (listRI.get(i).getBssid().equals("6e:5f:1c:d5:c8:b1")) { // LenovoS650 BSSID
+//                            params.put("p1[0]", listRI.get(i).getSsid());
+//                            params.put("p1[1]", listRI.get(i).getBssid());
+//                            params.put("p1[2]", listRI.get(i).getSignalLvl() + "");
+//                        } else if(listRI.get(i).getBssid().equals("12:2a:b3:a7:38:ee")) { // Jacky
+//                            params.put("p3[0]", listRI.get(i).getSsid());
+//                            params.put("p3[1]", listRI.get(i).getBssid() + "");
+//                            params.put("p3[2]", listRI.get(i).getSignalLvl() + "");
+//                        }
+//                        } else if (listRI.get(i).getBssid().equals("90:ef:68:c1:20:d6")) { // SMEAP01 BSSID(2462Mhz/2.462Ghz)
+//                            params.put("p3[0]", listRI.get(i).getSsid());
+//                            params.put("p3[1]", listRI.get(i).getBssid() + "");
+//                            params.put("p3[2]", listRI.get(i).getSignalLvl() + "");
+//                        }
                     }
                     params.put("userId", userLogged);
                 }
