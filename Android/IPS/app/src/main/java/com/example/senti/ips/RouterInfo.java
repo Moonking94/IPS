@@ -10,14 +10,16 @@ public class RouterInfo {
     private String bssid;
     private double frequency;
     private double signalLvl;
+    private int level;
 
     public RouterInfo() { }
 
-    public RouterInfo(String ssid, String bssid, double frequency, double signalLvl) {
+    public RouterInfo(String ssid, String bssid, double frequency, double signalLvl, int level) {
         this.ssid = ssid;
         this.bssid = bssid;
         this.frequency = frequency;
         this.signalLvl = signalLvl;
+        this.level = level;
     }
 
     public String getSsid() {
@@ -49,4 +51,8 @@ public class RouterInfo {
     }
 
     public void setSignalLvl(double signalLvl) { this.signalLvl = signalLvl; }
+
+    public int getLevel() { return level; }
+
+    public void setLevel(int level) { this.level = level; }
 }
