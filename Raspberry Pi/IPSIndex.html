@@ -2,6 +2,7 @@
   <head>
     <meta charset="utf-8"/>
     <title>Indoor Positioning</title>
+	  <script type="text/javascript" src="/scripts/trilaterationv2.js"></script>
     <script type="text/javascript" src="/scripts/trilateration.js"></script>
     <script type="text/javascript" src="/scripts/tracking.js"></script>
     <style type="text/css">
@@ -9,6 +10,13 @@
     </style>
   </head>
   <body onload="init();">
-    <canvas id="canvas" width="600" height="440"></canvas>
+    <div style="width:610px;height:610px;overflow: auto"  >
+    <canvas id="canvas" width="600" height="700" style="width:600px;height:600px;"></canvas>
+    </div>
+    <!--<canvas id="canvas" style="width:600px;height:440px"></canvas>-->
+    <p id="point1"></p>
+    <p id="point2"></p>
+    <p id="point3"></p>
+    <p id="point4"></p>
   </body>
 </html>
