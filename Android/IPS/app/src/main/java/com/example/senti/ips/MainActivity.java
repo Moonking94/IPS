@@ -27,6 +27,7 @@ import org.json.JSONObject;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -36,21 +37,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private TextView txtResult, txtWifiInfoResult, txtWifiStateResult, txtIsWifiEnabledResult;
     private Button btnStart, btnStop;
 
-    private volatile boolean sendAllow=true;
-    private List<RouterInfo> listRI;
+    private List<RouterInfo> listRI = new LinkedList<>();
+    private List<RouterInfo> selRI = new LinkedList<>();
+
+    private LinkedHashMap<String, ArrayList<Double>> linkmapDbm = new LinkedHashMap<>();
+
+    // In Milliseconds
+    private int totalDelay = 80;
+    private int avgDelay = 2000;
 
     private Handler h = new Handler();
     private Runnable runAvg, runDbm;
 
-    private ArrayList<Double> p1Arr = new ArrayList<>();
-    private ArrayList<Double> p2Arr = new ArrayList<>();
-    private ArrayList<Double> p3Arr = new ArrayList<>();
-    private ArrayList<Double> p4Arr = new ArrayList<>();
-    private ArrayList<Double> listAvgDbm = new ArrayList<>();
-
-    // milliseconds
-    private int totalDelay = 80;
-    private int avgDelay = 2000;
+    private volatile boolean sendAllow = true;
 
     private static final String TAG = "MainActivity";
 
@@ -76,6 +75,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         txtWifiStateResult.setText("");
         txtIsWifiEnabledResult.setText("");
         txtResult.setText("");
+        listRI.clear();
+        linkmapDbm.clear();
         h.removeCallbacks(runAvg);
         h.removeCallbacks(runDbm);
     }
@@ -133,75 +134,44 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                 Map<String, String> params = new HashMap<>();
                 String userLogged = "1";
-                Boolean status = false;
 
-                // Need to do logic on which router to choose *Choose router with the highest dbm reading
+                if(selRI.size() > 0 && !selRI.isEmpty()) {
+                    for (int i = 0; i < 3; i++) {
+                        Log.d(TAG, "SSID: " + selRI.get(i).getSsid());
+                        Log.d(TAG, "BSSID: " + selRI.get(i).getBssid());
+                        Log.d(TAG, "BSSID: " + selRI.get(i).getFrequency());
 
-                // For testing purposes
-                if(listRI.size() > 0 && !listRI.isEmpty()) {
-                    for (int i = 0; i < listRI.size(); i++) {
-                        Log.d(TAG, "SSID: " + listRI.get(i).getSsid());
-                        Log.d(TAG, "BSSID: " + listRI.get(i).getBssid());
-                        Log.d(TAG, "BSSID: " + listRI.get(i).getFrequency());
-
-                        if(listRI.get(i).getBssid().equals("b8:27:eb:06:43:df")) { // PiAP 18:a6:f7:0d:51:04
-                            params.put("p1[0]", listRI.get(i).getSsid());
-                            params.put("p1[1]", listRI.get(i).getBssid());
-//                            params.put("p1[2]", listRI.get(i).getSignalLvl() + "");
-                            params.put("p1[2]", listAvgDbm.get(0) + "");
-                            params.put("p1[3]", listRI.get(i).getLevel() + "");
-                        } else if (listRI.get(i).getBssid().equals("b8:27:eb:1b:c5:23")) { // MoonPiAP b8:27:eb:1b:c5:23
-                            params.put("p2[0]", listRI.get(i).getSsid());
-                            params.put("p2[1]", listRI.get(i).getBssid());
-//                            params.put("p1[2]", listRI.get(i).getSignalLvl() + "");
-                            params.put("p2[2]", listAvgDbm.get(2) + "");
-                            params.put("p2[3]", listRI.get(i).getLevel() + "");
-                        } else if(listRI.get(i).getBssid().equals("c8:d3:a3:dd:8e:10") && status) { // nana_ian c8:d3:a3:dd:8e:10
-                            params.put("p2[0]", listRI.get(i).getSsid());
-                            params.put("p2[1]", listRI.get(i).getBssid());
-                            params.put("p2[2]", listRI.get(i).getSignalLvl() + "");
-                        } else if(listRI.get(i).getBssid().equals("d8:5d:4c:db:bb:f8") && status) { // TP-LINK_DBBBF8 b8:27:eb:1b:c5:23
-                            params.put("p3[0]", listRI.get(i).getSsid());
-                            params.put("p3[1]", listRI.get(i).getBssid());
-                            params.put("p3[2]", listRI.get(i).getSignalLvl() + "");
-                        } else if (listRI.get(i).getBssid().equals("b8:27:eb:81:20:99")) { // JeffPi b8:27:eb:81:20:99
-                            params.put("p3[0]", listRI.get(i).getSsid());
-                            params.put("p3[1]", listRI.get(i).getBssid());
-//                            params.put("p3[2]", listRI.get(i).getSignalLvl() + "");
-                            params.put("p3[2]", listAvgDbm.get(1) + "");
-                            params.put("p3[3]", listRI.get(i).getLevel() + "");
-                        } else if (listRI.get(i).getBssid().equals("e8:50:8b:07:43:fb") && status) { // Jycans BSSID (Jeffrey)
-                            params.put("p2[0]", listRI.get(i).getSsid());
-                            params.put("p2[1]", listRI.get(i).getBssid());
-//                            params.put("p2[2]", listRI.get(i).getSignalLvl() + "");
-                            params.put("p2[2]", listAvgDbm.get(1) + "");
-                            params.put("p2[3]", listRI.get(i).getLevel() + "");
-                        } else if (listRI.get(i).getBssid().equals("38:a4:ed:68:02:e5") && status) { // RedMi (Louis)
-                            params.put("p4[0]", listRI.get(i).getSsid());
-                            params.put("p4[1]", listRI.get(i).getBssid());
-//                            params.put("p3[2]", listRI.get(i).getSignalLvl() + "");
-                            params.put("p4[2]", listAvgDbm.get(0) + "");
-                            params.put("p4[3]", listRI.get(i).getLevel() + "");
-                        } else if (listRI.get(i).getBssid().equals("6e:5f:1c:d5:c8:b1")) { // LenovoS650 BSSID
-                            params.put("p4[0]", listRI.get(i).getSsid());
-                            params.put("p4[1]", listRI.get(i).getBssid());
-//                            params.put("p3[2]", listRI.get(i).getSignalLvl() + "");
-                            params.put("p4[2]", listAvgDbm.get(0) + "");
-                            params.put("p4[3]", listRI.get(i).getLevel() + "");
-                        } else if(listRI.get(i).getBssid().equals("12:2a:b3:a7:38:ee") && status) { // Jacky
-                            params.put("p3[0]", listRI.get(i).getSsid());
-                            params.put("p3[1]", listRI.get(i).getBssid() + "");
-                            params.put("p3[2]", listRI.get(i).getSignalLvl() + "");
-                        } else if (listRI.get(i).getBssid().equals("90:ef:68:c1:20:d6") && status) { // SMEAP01 BSSID(2462Mhz/2.462Ghz)
-                            params.put("p3[0]", listRI.get(i).getSsid());
-                            params.put("p3[1]", listRI.get(i).getBssid() + "");
-                            params.put("p3[2]", listRI.get(i).getSignalLvl() + "");
+                        switch(i){
+                            case 0:
+                                params.put("p1[0]", selRI.get(i).getSsid());
+                                params.put("p1[1]", selRI.get(i).getBssid());
+                                params.put("p1[2]", selRI.get(i).getSignalLvl() + "");
+                                params.put("p1[3]", selRI.get(i).getLevel() + "");
+                                Log.d(TAG, "Point 1 added");
+                                break;
+                            case 1:
+                                params.put("p2[0]", selRI.get(i).getSsid());
+                                params.put("p2[1]", selRI.get(i).getBssid());
+                                params.put("p2[2]", selRI.get(i).getSignalLvl() + "");
+                                params.put("p2[3]", selRI.get(i).getLevel() + "");
+                                Log.d(TAG, "Point 2 added");
+                                break;
+                            case 2:
+                                params.put("p3[0]", selRI.get(i).getSsid());
+                                params.put("p3[1]", selRI.get(i).getBssid());
+                                params.put("p3[2]", selRI.get(i).getSignalLvl() + "");
+                                params.put("p3[3]", selRI.get(i).getLevel() + "");
+                                Log.d(TAG, "Point 3 added");
+                                break;
+                            default:
+                                Log.d(TAG, "Error when selecting RI");
+                                break;
                         }
                     }
                     params.put("userId", userLogged);
                 }
 
-                listAvgDbm.clear();
+                selRI = new LinkedList<>();
                 return params;
             }
         };
@@ -214,60 +184,103 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void onClick(View v) {
         if (v == btnStart) {
             getDbm();
-            getAvg();
+            //getAvg();
+            getMode();
         }
         if(v == btnStop) {
             stop();
         }
     }
 
-    /**
-     * Notes:
-     * distance = ToA ∗ c; c=3x10^5
-     *
-     * @param signalLevelInDb
-     * @param freqInMHz
-     * @return
-     */
-    private double calculateDistance(double signalLevelInDb, double freqInMHz) {
-        double exp = (27.55d - (20d * Math.log10(freqInMHz)) + Math.abs(signalLevelInDb)) / 20.0;
-//        double exp = (27.55d - (40d * Math.log10(freqInMHz)) + 6.7d - signalLevelInDb) / 20.0d; // We can see that values up to -50 dBm, can be used for somewhat relevant calculation. Lower values are highly unstable.
-//        double exp = (Math.abs(signalLevelInDb) - 40)/(10*2);
-        return Math.pow(10.0, exp);
-    }
-
-    /**
-     * 𝑅𝑆𝑆𝐼 = − 10𝑛 𝑙𝑜𝑔10 𝑑 + 𝐴
-     * n = -((RSSI - A)/(10(log10 x d)))
-     * Variable:
-     * A; where A = A is the received signal strength at 1 meter distance, A is obtained in a no-obstacle one-meter distance signal strength measurements from the reference nodes.
-     * d; where d = d is the distance from sender;
-     * n; where n = 2(Free space), 2.7~3.5(Urban area Cellular radio), 1.6~1.8(In Building LOS), 3~5(Shadowed Urban Area cellular radio)
-     *
-     *
-     */
-
     private void getAvg() {
         runAvg = new Runnable() {
             @Override
             public void run(){
-                ArrayList<ArrayList<Double>> listOfTotal = new ArrayList<>();
-                listOfTotal.add(p1Arr);
-                listOfTotal.add(p2Arr);
-                listOfTotal.add(p3Arr);
-                listOfTotal.add(p4Arr);
 
-                for(int i=0;i<listOfTotal.size();i++) {
-                    Double total = totalCalculation(listOfTotal.get(i));
-                    listAvgDbm.add(total/listOfTotal.get(i).size());
-                    Log.d("MainActivity", "Average for " + total + "/" + listOfTotal.get(i).size() + " is " + listAvgDbm.get(i) + ", The distance is : " + calculateDistance(listAvgDbm.get(i), 2437) + "m.");
-                    listOfTotal.get(i).clear();
+                if(listRI.size() > 0 && listRI.isEmpty())
+                    Log.d(TAG, "There are no known access point !");
+
+                for(int i=0;i<listRI.size();i++) {
+                    RouterInfo ri = listRI.get(i);
+
+                    ArrayList<Double> tempArr = linkmapDbm.get(ri.getBssid());
+                    Double total = totalCalculation(tempArr);
+                    Double avg = total/tempArr.size();
+                    ri.setSignalLvl(avg);
+
+                    if(selRI.isEmpty()) {
+                        selRI.add(listRI.get(i));
+                    } else {
+                        boolean added = false;
+                        for(int j=0;j<selRI.size();j++) {
+                            if(ri.getSignalLvl() > selRI.get(j).getSignalLvl()) {
+                                selRI.add(j, ri);
+                                added = true;
+                                break;
+                            }
+                        }
+
+                        if(!added && selRI.size() < 3)
+                            selRI.add(ri);
+                    }
+
+                    Log.d("MainActivity", "Average for " + total + "/" + tempArr.size() + " is " + avg + ", The distance after average is : " + new DecimalFormat("#.##").format(calculateDistance(avg, 2437)) + "m.");
                 }
-                listOfTotal.clear();
 
                 if(sendAllow) {
                     sendCoordinate();
                 }
+
+                listRI = new LinkedList<>();
+                linkmapDbm.clear();
+
+                h.postDelayed(this, avgDelay);
+            }
+        };
+
+        h.postDelayed(runAvg, avgDelay);
+    }
+
+    private void getMode() {
+        runAvg = new Runnable() {
+            @Override
+            public void run(){
+
+                if(listRI.size() > 0 && listRI.isEmpty())
+                    Log.d(TAG, "There are no known access point !");
+
+                for(int i=0;i<listRI.size();i++) {
+                    RouterInfo ri = listRI.get(i);
+
+                    ArrayList<Double> tempArr = linkmapDbm.get(ri.getBssid());
+                    Double signal = countMode(tempArr);
+                    ri.setSignalLvl(signal);
+
+                    if(selRI.isEmpty()) {
+                        selRI.add(listRI.get(i));
+                    } else {
+                        boolean added = false;
+                        for(int j=0;j<selRI.size();j++) {
+                            if(ri.getSignalLvl() > selRI.get(j).getSignalLvl()) {
+                                selRI.add(j, ri);
+                                added = true;
+                                break;
+                            }
+                        }
+
+                        if(!added && selRI.size() < 3)
+                            selRI.add(ri);
+                    }
+
+                    Log.d("MainActivity", "Mode signal for " + ri.getSsid() + " is " + signal + ", The distance after mode is : " + new DecimalFormat("#.##").format(calculateDistance(signal, 2437)) + "m.");
+                }
+
+                if(sendAllow) {
+                    sendCoordinate();
+                }
+
+                listRI = new LinkedList<>();
+                linkmapDbm.clear();
 
                 h.postDelayed(this, avgDelay);
             }
@@ -277,11 +290,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void getDbm() {
+
         runDbm = new Runnable() {
             @Override
             public void run() {
-                listRI = new LinkedList<>();
-
                 WifiManager wifiMgr = (WifiManager) getApplicationContext().getSystemService(getApplicationContext().WIFI_SERVICE);
                 int state = wifiMgr.getWifiState();
                 WifiInfo info = wifiMgr.getConnectionInfo(); // Get the connected wifiMgr info
@@ -291,7 +303,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 txtWifiInfoResult.setText("Wifi info: " + info);
                 txtWifiStateResult.setText("Wifi state: " + state);
                 Log.d(TAG, "Scan result: " + result);
-                Log.d(TAG, wifiMgr.isScanAlwaysAvailable() + "");
 
                 txtResult.setText("Result\n");// Reset text view
 
@@ -303,7 +314,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     double frequency = result.get(i).frequency;
                     double distance = calculateDistance(wifiDb, frequency);
 
-                    if(ssid.equals("Redmi222") || ssid.equals("Jycans") || ssid.equals("PiAP") || ssid.equals("PiJeff") || ssid.equals("MoonPiAP") || ssid.equals("LenovoS650")) {
+                    if(ssid.equals("Redmi222") || ssid.equals("Jycans") || ssid.equals("PiAP") || ssid.equals("PiJeff") || ssid.equals("MoonPiAP") || ssid.equals("PiGary") || ssid.equals("LenovoS650")) {
                         txtResult.append("SSID: " + ssid + "\n");
                         txtResult.append("BSSID: " + bssid + "\n");
                         txtResult.append("Level: " + wifiDb + "\n");
@@ -312,24 +323,26 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         txtResult.append("Timestamps: " + result.get(i).timestamp + "\n");
                         txtResult.append("Distance: " + new DecimalFormat("#.##").format(distance) + " m\n\n");
 
-                        Log.d("MainActivity", new DecimalFormat("#.##").format(distance) + " m");
+                        Log.d(TAG, "Distance before average: " + new DecimalFormat("#.##").format(distance) + " m");
 
                         RouterInfo ri = new RouterInfo(ssid, bssid, frequency, wifiDb, level);
-                        listRI.add(ri);
 
-                        if(ssid.equals("PiAP")) {
-                            p1Arr.add(wifiDb);
-                            Log.d("MainActivity", "Wifi dbm for PiAP : " + wifiDb + "");
-                        } else if(ssid.equals("PiJeff")) {
-                            p2Arr.add(wifiDb);
-                            Log.d("MainActivity", "Wifi dbm for PiJeff : " + wifiDb + "");
-                        } else if(ssid.equals("MoonPiAP")){
-                            p3Arr.add(wifiDb);
-                            Log.d("MainActivity", "Wifi dbm for MoonPiAP : " + wifiDb + "");
+                        if(!linkmapDbm.containsKey(ri.getBssid())) {
+                            boolean s = listRI.add(ri);
+                            Log.d(TAG, "ListRI.add: " + s + "");
+                            ArrayList<Double> tempArr = new ArrayList<>();
+                            tempArr.add(ri.getSignalLvl());
+
+                            linkmapDbm.put(ri.getBssid(), tempArr);
+                            Log.d(TAG, "--------Add linkhash--------\n" + ri.getBssid() + "\n");
                         } else {
-                            p4Arr.add(wifiDb);
-                            Log.d("MainActivity", "Wifi dbm for S650 : " + wifiDb + "");
+                            ArrayList<Double> tempArr = linkmapDbm.get(ri.getBssid());
+                            tempArr.add(ri.getSignalLvl());
+
+                            linkmapDbm.put(ri.getBssid(), tempArr);
+                            Log.d(TAG, "--------Update linkhash--------\n" + ri.getBssid() + "\n");
                         }
+                        Log.d(TAG, "Signal Strength for " + ri.getSsid() + " is " + " : " + ri.getSignalLvl() + "\nList RI size is : " + listRI.size());
                     }
                 }
 
@@ -346,8 +359,68 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         for(int i=0;i<list.size();i++) {
             total += list.get(i);
         }
-        Log.d("MainActivity", "Total : " + total + "");
+        Log.d(TAG, "Total : " + total + "");
 
         return total;
+    }
+
+    private Double countMode(ArrayList<Double> list) {
+        ArrayList<Double> tempArr = new ArrayList<>();
+        LinkedHashMap<Double, ArrayList<Object>> counter = new LinkedHashMap<>();
+
+        for(int i = 0;i<list.size();i++) {
+            if(!tempArr.contains(list.get(i)))
+                tempArr.add(list.get(i));
+        }
+
+        for(int i=0;i<list.size();i++) {
+            if(counter.containsKey(list.get(i))) {
+                ArrayList<Object> temp = counter.get(list.get(i));
+                Integer c = (Integer)temp.get(1);
+                c+=1;
+                temp.set(1, c);
+                counter.put(list.get(i), temp);
+            } else {
+                ArrayList<Object> temp = new ArrayList<>();
+                temp.add(list.get(i));
+                temp.add(1);
+                counter.put(list.get(i), temp);
+            }
+        }
+
+        Double signal = (Double)counter.get(tempArr.get(0)).get(0);
+        Integer c = (Integer)counter.get(tempArr.get(0)).get(1);
+
+        for(int i=1;i<tempArr.size();i++) {
+            if(c <= (Integer)counter.get(tempArr.get(i)).get(1)) {
+                c = (Integer)counter.get(tempArr.get(i)).get(1);
+                signal = (Double)counter.get(tempArr.get(i)).get(0);
+            }
+        }
+
+        return signal;
+    }
+
+    /**
+     * Formula:
+     *
+     * distance = ToA ∗ c;
+     * ToA; where ToA = Unknown
+     * c; where c = 3x10^5
+     *
+     * 𝑅𝑆𝑆𝐼 = − 10𝑛 𝑙𝑜𝑔10 𝑑 + 𝐴
+     * n = -((RSSI - A)/(10(log10 x d)))
+     * Variable:
+     * A; where A = A is the received signal strength at 1 meter distance, A is obtained in a no-obstacle one-meter distance signal strength measurements from the reference nodes.
+     * d; where d = d is the distance from sender;
+     * n; where n = 2(Free space), 2.7~3.5(Urban area Cellular radio), 1.6~1.8(In Building LOS), 3~5(Shadowed Urban Area cellular radio)
+     *
+     * @param signalLevelInDb
+     * @param freqInMHz
+     * @return
+     */
+    private double calculateDistance(double signalLevelInDb, double freqInMHz) {
+        double exp = (27.55d - (20d * Math.log10(freqInMHz)) + Math.abs(signalLevelInDb)) / 20.0; // We can see that values up to -50 dBm, can be used for somewhat relevant calculation. Lower values are highly unstable.
+        return Math.pow(10.0, exp);
     }
 }
