@@ -1,5 +1,9 @@
 package com.example.senti.ips;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
@@ -58,6 +62,47 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private final static String TAG = "MainActivity";
 
     WifiManager wifiMgr;
+    BroadcastReceiver receiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            List<ScanResult> result = wifiMgr.getScanResults();
+            txtResult.setText("");
+            for(int i = 0;i<result.size();i++) {
+                String ssid = result.get(i).SSID;
+                String bssid = result.get(i).BSSID;
+                double wifiDb = result.get(i).level;
+                int level = wifiMgr.calculateSignalLevel((int)wifiDb, 10);
+                double frequency = result.get(i).frequency;
+                double distance = calculateDistance(wifiDb, frequency);
+
+                if(ssid.contains("IPS_AP") || ssid.contains("IPS-AP")) {
+                    txtResult.append("SSID: " + ssid + "\n");
+                    txtResult.append("BSSID: " + bssid + "\n");
+                    txtResult.append("Level: " + wifiDb + "\n");
+                    txtResult.append("Frequency: " + frequency + "\n");
+                    txtResult.append("Signal Level: " + level + "\n");
+                    txtResult.append("Distance: " + new DecimalFormat("#.##").format(distance) + " m\n\n");
+
+                    Log.d(TAG, "Distance before average: " + new DecimalFormat("#.##").format(distance) + " m, RRSI : " + wifiDb);
+
+                    RouterInfo ri = new RouterInfo(ssid, bssid, frequency, wifiDb, level);
+
+                    if(!linkmapDbm.containsKey(ri.getBssid())) {
+                        listRI.add(ri);
+                        ArrayList<Double> tempArr = new ArrayList<>();
+                        tempArr.add(ri.getSignalLvl());
+
+                        linkmapDbm.put(ri.getBssid(), tempArr);
+                    } else {
+                        ArrayList<Double> tempArr = linkmapDbm.get(ri.getBssid());
+                        tempArr.add(ri.getSignalLvl());
+
+                        linkmapDbm.put(ri.getBssid(), tempArr);
+                    }
+                }
+            }
+        }
+    };// listens to the broadcasted wifi signals
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,9 +118,40 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         btnStop = (Button)findViewById(R.id.btnStop);
 
         wifiMgr = (WifiManager) getApplicationContext().getSystemService(WIFI_SERVICE);
+        // Register Broadcast Receiver
+        if (receiver == null)
+            receiver = new WiFiScanReceiver(this);
 
         btnStart.setOnClickListener(this);
         btnStop.setOnClickListener(this);
+    }
+
+    @Override
+    public void onClick(View v) {
+        if (v == btnStart) {
+            registerReceiver(receiver, new IntentFilter(
+                    WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
+            getDbm();
+//            getAvg();
+//            getMode();
+            kalmanfilter();
+        }
+        if(v == btnStop) {
+            stop();
+        }
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        unregisterReceiver(receiver);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        unregisterReceiver(receiver);
+
     }
 
     // Stop all the activity of WiFi Scan and clear the text.
@@ -89,6 +165,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         h.removeCallbacks(runAvg);
         h.removeCallbacks(runDbm);
         h.removeCallbacks(runKalman);
+        unregisterReceiver(receiver);
     }
 
     // Send current coordinate to server
@@ -188,20 +265,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         };
 
         RequestQueue queue = Volley.newRequestQueue(this);
+        postRequest.setShouldCache(false);
         queue.add(postRequest);
-    }
-
-    @Override
-    public void onClick(View v) {
-        if (v == btnStart) {
-            getDbm();
-//            getAvg();
-//            getMode();
-            kalmanfilter();
-        }
-        if(v == btnStop) {
-            stop();
-        }
     }
 
     private void getAvg() {
@@ -353,57 +418,58 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void getDbm() {
+//        wifiMgr.startScan();
         runDbm = new Runnable() {
             @Override
             public void run() {
-                int state = wifiMgr.getWifiState();
-                WifiInfo info = wifiMgr.getConnectionInfo(); // Get the connected wifiMgr info
                 wifiMgr.startScan();
-                List<ScanResult> result = wifiMgr.getScanResults();
-
-                txtWifiInfoResult.setText("Wifi info: " + info);
-                txtWifiStateResult.setText("Wifi state: " + state);
-                Log.d(TAG, "Scan result: " + result);
-
-                txtResult.setText("Result\n");// Reset text view
-
-                for(int i = 0;i<result.size();i++) {
-                    String ssid = result.get(i).SSID;
-                    String bssid = result.get(i).BSSID;
-                    double wifiDb = result.get(i).level;
-                    int level = wifiMgr.calculateSignalLevel((int)wifiDb, 10);
-                    double frequency = result.get(i).frequency;
-                    double distance = calculateDistance(wifiDb, frequency);
-
-//                    if(ssid.equals("IPS_AP6") || ssid.equals("IPS_AP5") || ssid.equals("IPS_AP4")) {
-//                    if(ssid.equals("Redmi222") || ssid.equals("Jycans") || ssid.equals("PiAP") || ssid.equals("PiJeff") || ssid.equals("MoonPiAP") || ssid.equals("PiGary") || ssid.equals("LenovoS650")) {
-                    if(ssid.contains("IPS_AP") || ssid.contains("IPS-AP")) {
-                        txtResult.append("SSID: " + ssid + "\n");
-                        txtResult.append("BSSID: " + bssid + "\n");
-                        txtResult.append("Level: " + wifiDb + "\n");
-                        txtResult.append("Frequency: " + frequency + "\n");
-                        txtResult.append("Signal Level: " + level + "\n");
-                        txtResult.append("Distance: " + new DecimalFormat("#.##").format(distance) + " m\n\n");
-
-                        Log.d(TAG, "Distance before average: " + new DecimalFormat("#.##").format(distance) + " m, RRSI : " + wifiDb);
-
-                        RouterInfo ri = new RouterInfo(ssid, bssid, frequency, wifiDb, level);
-
-                        if(!linkmapDbm.containsKey(ri.getBssid())) {
-                            listRI.add(ri);
-                            ArrayList<Double> tempArr = new ArrayList<>();
-                            tempArr.add(ri.getSignalLvl());
-
-                            linkmapDbm.put(ri.getBssid(), tempArr);
-                        } else {
-                            ArrayList<Double> tempArr = linkmapDbm.get(ri.getBssid());
-                            tempArr.add(ri.getSignalLvl());
-
-                            linkmapDbm.put(ri.getBssid(), tempArr);
-                        }
-                    }
-                }
-
+//                int state = wifiMgr.getWifiState();
+//                WifiInfo info = wifiMgr.getConnectionInfo(); // Get the connected wifiMgr info
+//                List<ScanResult> result = wifiMgr.getScanResults();
+//
+//                txtWifiInfoResult.setText("Wifi info: " + info);
+//                txtWifiStateResult.setText("Wifi state: " + state);
+//                Log.d(TAG, "Scan result: " + result);
+//
+//                txtResult.setText("Result\n");// Reset text view
+//
+//                for(int i = 0;i<result.size();i++) {
+//                    String ssid = result.get(i).SSID;
+//                    String bssid = result.get(i).BSSID;
+//                    double wifiDb = result.get(i).level;
+//                    int level = wifiMgr.calculateSignalLevel((int)wifiDb, 10);
+//                    double frequency = result.get(i).frequency;
+//                    double distance = calculateDistance(wifiDb, frequency);
+//
+////                    if(ssid.equals("IPS_AP6") || ssid.equals("IPS_AP5") || ssid.equals("IPS_AP4")) {
+////                    if(ssid.equals("Redmi222") || ssid.equals("Jycans") || ssid.equals("PiAP") || ssid.equals("PiJeff") || ssid.equals("MoonPiAP") || ssid.equals("PiGary") || ssid.equals("LenovoS650")) {
+//                    if(ssid.contains("IPS_AP") || ssid.contains("IPS-AP")) {
+//                        txtResult.append("SSID: " + ssid + "\n");
+//                        txtResult.append("BSSID: " + bssid + "\n");
+//                        txtResult.append("Level: " + wifiDb + "\n");
+//                        txtResult.append("Frequency: " + frequency + "\n");
+//                        txtResult.append("Signal Level: " + level + "\n");
+//                        txtResult.append("Distance: " + new DecimalFormat("#.##").format(distance) + " m\n\n");
+//
+//                        Log.d(TAG, "Distance before average: " + new DecimalFormat("#.##").format(distance) + " m, RRSI : " + wifiDb);
+//
+//                        RouterInfo ri = new RouterInfo(ssid, bssid, frequency, wifiDb, level);
+//
+//                        if(!linkmapDbm.containsKey(ri.getBssid())) {
+//                            listRI.add(ri);
+//                            ArrayList<Double> tempArr = new ArrayList<>();
+//                            tempArr.add(ri.getSignalLvl());
+//
+//                            linkmapDbm.put(ri.getBssid(), tempArr);
+//                        } else {
+//                            ArrayList<Double> tempArr = linkmapDbm.get(ri.getBssid());
+//                            tempArr.add(ri.getSignalLvl());
+//
+//                            linkmapDbm.put(ri.getBssid(), tempArr);
+//                        }
+//                    }
+//                }
+//
                 h.postDelayed(this, totalDelay);
             }
         };
