@@ -26,6 +26,8 @@ import org.json.JSONObject;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -44,14 +46,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     // In Milliseconds
     private int totalDelay = 80;
-    private int avgDelay = 2000;
+    private int sendDelay = 2000;
+    private int modeDelay = sendDelay;
+    private int avgDelay = sendDelay;
 
     private Handler h = new Handler();
-    private Runnable runAvg, runDbm;
+    private Runnable runAvg, runMode, runKalman, runDbm;
 
     private volatile boolean sendAllow = true;
 
-    private static final String TAG = "MainActivity";
+    private final static String TAG = "MainActivity";
+
+    WifiManager wifiMgr;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,10 +72,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         btnStart = (Button)findViewById(R.id.btnStart);
         btnStop = (Button)findViewById(R.id.btnStop);
 
+        wifiMgr = (WifiManager) getApplicationContext().getSystemService(WIFI_SERVICE);
+
         btnStart.setOnClickListener(this);
         btnStop.setOnClickListener(this);
     }
 
+    // Stop all the activity of WiFi Scan and clear the text.
     private void stop() {
         txtWifiInfoResult.setText("");
         txtWifiStateResult.setText("");
@@ -79,6 +88,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         linkmapDbm.clear();
         h.removeCallbacks(runAvg);
         h.removeCallbacks(runDbm);
+        h.removeCallbacks(runKalman);
     }
 
     // Send current coordinate to server
@@ -117,7 +127,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             // Handle and prompt if there are any connection error
             @Override
             public void onErrorResponse(VolleyError error) {
-                Log.e("MainActivity", "Save Error: " + error.getMessage());
+                Log.e(TAG, "Save Error: " + error.getMessage());
                 if(error instanceof NoConnectionError) {
                     Toast.makeText(getApplicationContext(), "Save failed:" + "Unable to connect to the server", Toast.LENGTH_LONG).show();
                 } else if (error instanceof TimeoutError) {
@@ -139,7 +149,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     for (int i = 0; i < 3; i++) {
                         Log.d(TAG, "SSID: " + selRI.get(i).getSsid());
                         Log.d(TAG, "BSSID: " + selRI.get(i).getBssid());
-                        Log.d(TAG, "BSSID: " + selRI.get(i).getFrequency());
+                        Log.d(TAG, "Frequency: " + selRI.get(i).getFrequency());
+                        Log.d(TAG, "Signal: " + selRI.get(i).getSignalLvl());
 
                         switch(i){
                             case 0:
@@ -184,8 +195,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void onClick(View v) {
         if (v == btnStart) {
             getDbm();
-            //getAvg();
-            getMode();
+//            getAvg();
+//            getMode();
+            kalmanfilter();
         }
         if(v == btnStop) {
             stop();
@@ -205,7 +217,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                     ArrayList<Double> tempArr = linkmapDbm.get(ri.getBssid());
                     Double total = totalCalculation(tempArr);
-                    Double avg = total/tempArr.size();
+                    //Double avg = total/tempArr.size();
+                    Double avg = Math.log10(total/(avgDelay/1000))*10;
                     ri.setSignalLvl(avg);
 
                     if(selRI.isEmpty()) {
@@ -224,7 +237,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             selRI.add(ri);
                     }
 
-                    Log.d("MainActivity", "Average for " + total + "/" + tempArr.size() + " is " + avg + ", The distance after average is : " + new DecimalFormat("#.##").format(calculateDistance(avg, 2437)) + "m.");
+                    Log.d(TAG, "Average for " + total + "/" + tempArr.size() + " is " + avg + ", The distance after average is : " + new DecimalFormat("#.##").format(calculateDistance(avg, 2437)) + "m.");
                 }
 
                 if(sendAllow) {
@@ -242,7 +255,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void getMode() {
-        runAvg = new Runnable() {
+        runMode = new Runnable() {
             @Override
             public void run(){
 
@@ -272,7 +285,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             selRI.add(ri);
                     }
 
-                    Log.d("MainActivity", "Mode signal for " + ri.getSsid() + " is " + signal + ", The distance after mode is : " + new DecimalFormat("#.##").format(calculateDistance(signal, 2437)) + "m.");
+                    Log.d(TAG, "Mode signal for " + ri.getSsid() + " is " + signal + ", The distance after mode is : " + new DecimalFormat("#.##").format(calculateDistance(signal, 2437)) + "m.");
                 }
 
                 if(sendAllow) {
@@ -282,19 +295,67 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 listRI = new LinkedList<>();
                 linkmapDbm.clear();
 
-                h.postDelayed(this, avgDelay);
+                h.postDelayed(this, modeDelay);
             }
         };
 
-        h.postDelayed(runAvg, avgDelay);
+        h.postDelayed(runMode, modeDelay);
+    }
+
+    private void kalmanfilter() {
+
+        runKalman = new Runnable() {
+            @Override
+            public void run() {
+                if (listRI.size() > 0 && listRI.isEmpty())
+                    Log.d(TAG, "There are no known access point !");
+
+                for (int i = 0; i < listRI.size(); i++) {
+                    RouterInfo ri = listRI.get(i);
+
+                    ArrayList<Double> tempArr = linkmapDbm.get(ri.getBssid());
+                    //tempArr = filter(tempArr); // Filter 10% on the top and bottom of the list
+
+                    //Double signal = kalmanCalculator(tempArr);  // Apply KalmanFilter and return the average
+                    //Double signal = getLowestRssi(tempArr); // Get the lowest Rssi value from the array list
+                    //ri.setSignalLvl(signal);
+
+                    if(selRI.isEmpty()) {
+                        selRI.add(listRI.get(i));
+                    } else {
+                        boolean added = false;
+                        for(int j=0;j<selRI.size();j++) {
+                            if(ri.getSignalLvl() > selRI.get(j).getSignalLvl()) {
+                                selRI.add(j, ri);
+                                added = true;
+                                break;
+                            }
+                        }
+
+                        if(!added && selRI.size() < 3)
+                            selRI.add(ri);
+                    }
+
+//                    Log.d(TAG, "Mode signal for " + ri.getSsid() + " is " + signal + ", The distance after kalmanfilter is : " + new DecimalFormat("#.##").format(calculateDistance(signal, 2437)) + "m.");
+                }
+
+                if(sendAllow) {
+                    sendCoordinate();
+                }
+
+                listRI = new LinkedList<>();
+                linkmapDbm.clear();
+
+                h.postDelayed(this, modeDelay);
+            }
+        };
+        h.postDelayed(runKalman, modeDelay);
     }
 
     private void getDbm() {
-
         runDbm = new Runnable() {
             @Override
             public void run() {
-                WifiManager wifiMgr = (WifiManager) getApplicationContext().getSystemService(getApplicationContext().WIFI_SERVICE);
                 int state = wifiMgr.getWifiState();
                 WifiInfo info = wifiMgr.getConnectionInfo(); // Get the connected wifiMgr info
                 wifiMgr.startScan();
@@ -314,35 +375,32 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     double frequency = result.get(i).frequency;
                     double distance = calculateDistance(wifiDb, frequency);
 
-                    if(ssid.equals("Redmi222") || ssid.equals("Jycans") || ssid.equals("PiAP") || ssid.equals("PiJeff") || ssid.equals("MoonPiAP") || ssid.equals("PiGary") || ssid.equals("LenovoS650")) {
+//                    if(ssid.equals("IPS_AP6") || ssid.equals("IPS_AP5") || ssid.equals("IPS_AP4")) {
+//                    if(ssid.equals("Redmi222") || ssid.equals("Jycans") || ssid.equals("PiAP") || ssid.equals("PiJeff") || ssid.equals("MoonPiAP") || ssid.equals("PiGary") || ssid.equals("LenovoS650")) {
+                    if(ssid.contains("IPS_AP") || ssid.contains("IPS-AP")) {
                         txtResult.append("SSID: " + ssid + "\n");
                         txtResult.append("BSSID: " + bssid + "\n");
                         txtResult.append("Level: " + wifiDb + "\n");
                         txtResult.append("Frequency: " + frequency + "\n");
                         txtResult.append("Signal Level: " + level + "\n");
-                        txtResult.append("Timestamps: " + result.get(i).timestamp + "\n");
                         txtResult.append("Distance: " + new DecimalFormat("#.##").format(distance) + " m\n\n");
 
-                        Log.d(TAG, "Distance before average: " + new DecimalFormat("#.##").format(distance) + " m");
+                        Log.d(TAG, "Distance before average: " + new DecimalFormat("#.##").format(distance) + " m, RRSI : " + wifiDb);
 
                         RouterInfo ri = new RouterInfo(ssid, bssid, frequency, wifiDb, level);
 
                         if(!linkmapDbm.containsKey(ri.getBssid())) {
-                            boolean s = listRI.add(ri);
-                            Log.d(TAG, "ListRI.add: " + s + "");
+                            listRI.add(ri);
                             ArrayList<Double> tempArr = new ArrayList<>();
                             tempArr.add(ri.getSignalLvl());
 
                             linkmapDbm.put(ri.getBssid(), tempArr);
-                            Log.d(TAG, "--------Add linkhash--------\n" + ri.getBssid() + "\n");
                         } else {
                             ArrayList<Double> tempArr = linkmapDbm.get(ri.getBssid());
                             tempArr.add(ri.getSignalLvl());
 
                             linkmapDbm.put(ri.getBssid(), tempArr);
-                            Log.d(TAG, "--------Update linkhash--------\n" + ri.getBssid() + "\n");
                         }
-                        Log.d(TAG, "Signal Strength for " + ri.getSsid() + " is " + " : " + ri.getSignalLvl() + "\nList RI size is : " + listRI.size());
                     }
                 }
 
@@ -357,7 +415,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         Double total = 0.0;
 
         for(int i=0;i<list.size();i++) {
-            total += list.get(i);
+            Double temp = Math.pow(10, (list.size()/10));
+            //total += list.get(i);
+            total += temp;
         }
         Log.d(TAG, "Total : " + total + "");
 
@@ -401,6 +461,58 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         return signal;
     }
 
+    private ArrayList<Double> sortRssi(ArrayList<Double> temp) {
+        Collections.sort(temp, new Comparator<Double>() {
+            @Override
+            public int compare(Double val1, Double val2) {
+                return val1.compareTo(val2);
+            }
+        });
+        Collections.reverse(temp);
+
+        return temp;
+    }
+
+    private Double getLowestRssi(ArrayList<Double> temp) {
+        temp = sortRssi(temp);
+        return temp.get(0);
+    }
+
+    private ArrayList<Double> filter(ArrayList<Double> temp) {
+
+        Double toRemove = Math.floor(Double.parseDouble(temp.size() + "")/10);
+        Log.d(TAG, "Before sort : " + temp.toString());
+
+        // Remove the bottom 10% of the ArrayList
+        for(int count=0;count<toRemove;count++) {
+            temp.remove(0);
+        }
+
+        // Remove the top 10% of the ArrayList
+        for(int count=0;count<toRemove;count++) {
+            temp.remove(temp.size()-1);
+        }
+
+        Log.d(TAG, "After sort : " + temp.toString());
+
+        return temp;
+    }
+
+    private Double kalmanCalculator(ArrayList<Double> signalList) {
+        Double initialSignalStrength = Math.abs(signalList.get(0));
+        Double kalmanGain;
+        Double errorEst = 2.0;
+        Double errorMea = 4.0;
+
+        for(int i = 1;i<signalList.size();i++) {
+            kalmanGain = errorEst / (errorEst + errorMea);
+            initialSignalStrength = initialSignalStrength + kalmanGain * (Math.abs(signalList.get(i)) - initialSignalStrength);
+            errorEst = (1 - kalmanGain) * errorEst;
+        }
+
+        return -1*initialSignalStrength;
+    }
+
     /**
      * Formula:
      *
@@ -417,7 +529,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      *
      * @param signalLevelInDb
      * @param freqInMHz
-     * @return
+     * @return the distance from AP to user in meter
      */
     private double calculateDistance(double signalLevelInDb, double freqInMHz) {
         double exp = (27.55d - (20d * Math.log10(freqInMHz)) + Math.abs(signalLevelInDb)) / 20.0; // We can see that values up to -50 dBm, can be used for somewhat relevant calculation. Lower values are highly unstable.
