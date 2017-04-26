@@ -4,8 +4,6 @@ $username = "root";
 $password = "root";
 $database = "db_ips";
 
-$user_id = $_POST["userId"];
-
 if(isset($_POST["userId"])) {
 	
 	$user_id = $_POST["userId"];
@@ -38,7 +36,8 @@ if(isset($_POST["userId"])) {
 		
 		/* fetch values */
 		while(mysqli_stmt_fetch($stmt)) {
-			 $distance = (pow(10, (27.55 - (20 * log10($frequency)) + abs($signal_str)) / 20.0))*100; // Will return in meter
+			 //$distance = (pow(10, (27.55 - (20 * log10($frequency)) + abs($signal_str)) / 20.0))*100; // Will return in meter
+			 $distance = -1 * $signal_str * 4;
 			// $distance = 100 * $distance;
 			// $distance = abs($signal_str) * $signal_lvl ;
 			array_push($pointInfo, array(
@@ -58,6 +57,9 @@ if(isset($_POST["userId"])) {
 		mysqli_stmt_close($stmt);
 	}
 	$response['data'] = $pointInfo;
+	echo json_encode($response);
+} else {
+    $response['error_message'] = "Missing required parameters";
 	echo json_encode($response);
 }
 ?>
