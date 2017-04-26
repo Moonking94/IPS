@@ -4,9 +4,9 @@ $username = "root";
 $password = "root";
 $database = "db_ips";
 
-if(isset($_POST["location"])) {
+if(isset($_POST["locationName"])) {
 
-    $location = $_POST["location"];
+    $location = $_POST["locationName"];
     $status = "A";
 
     $ap_info = array();

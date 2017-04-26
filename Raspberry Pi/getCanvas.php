@@ -12,7 +12,7 @@ if(isset($_POST["userId"])) {
 	
 	$conn = mysqli_connect($hostname, $username, $password, $database);
 	
-	$query = "SELECT rp.router_id, rp.ssid, rp.xaxis, rp.yaxis, rp.zaxis, rp.frequency, up.signal_str, up.signal_lvl, up.pointNum FROM router_profile rp inner join user_position up where rp.router_id = up.router_id AND up.user_id = ? ORDER BY up.pointNum";
+	$query = "SELECT rp.router_id, rp.ssid, rp.xaxis, rp.yaxis, rp.zaxis, rp.frequency, up.signal_str, up.signal_lvl, up.pointNum FROM router_profile rp INNER JOIN user_position up WHERE rp.router_id = up.router_id AND up.user_id = ? ORDER BY up.pointNum";
 	
 	if($stmt = mysqli_prepare($conn, $query)) {
 		/* bind parameters for markers */
