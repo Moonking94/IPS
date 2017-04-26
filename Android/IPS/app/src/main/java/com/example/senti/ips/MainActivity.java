@@ -144,14 +144,21 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onStop() {
         super.onStop();
-        unregisterReceiver(receiver);
+        try {
+            unregisterReceiver(receiver);
+        }catch(IllegalArgumentException e) {
+            Log.d(TAG, e.toString());
+        }
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        unregisterReceiver(receiver);
-
+        try {
+            unregisterReceiver(receiver);
+        }catch(IllegalArgumentException e) {
+            Log.d(TAG, e.toString());
+        }
     }
 
     // Stop all the activity of WiFi Scan and clear the text.
@@ -165,7 +172,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         h.removeCallbacks(runAvg);
         h.removeCallbacks(runDbm);
         h.removeCallbacks(runKalman);
-        unregisterReceiver(receiver);
+        try {
+            unregisterReceiver(receiver);
+        }catch(IllegalArgumentException e) {
+            Log.d(TAG, e.toString());
+        }
     }
 
     // Send current coordinate to server
