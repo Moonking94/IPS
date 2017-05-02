@@ -1,5 +1,6 @@
 package com.example.senti.ips;
 
+import android.annotation.SuppressLint;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -14,7 +15,10 @@ import android.util.Log;
 import android.view.Display;
 import android.view.View;
 import android.view.WindowManager;
+import android.webkit.JavascriptInterface;
+import android.webkit.WebSettings;
 import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -41,6 +45,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+@SuppressLint("SetJavaScriptEnabled")
 public class MainActivity extends AppCompatActivity implements View.OnClickListener  {
 
     //private TextView txtResult, txtWifiInfoResult, txtWifiStateResult, txtIsWifiEnabledResult;
@@ -124,10 +129,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         wifiMgr = (WifiManager) getApplicationContext().getSystemService(WIFI_SERVICE);
 
-        wvUserLoc.getSettings().setJavaScriptEnabled(true);
-        wvUserLoc.getSettings().setLoadWithOverviewMode(true);
-        wvUserLoc.getSettings().setUseWideViewPort(true);
-        wvUserLoc.loadUrl(getString(R.string.WebViewAddress));
+        webViewSetup();
 
         btnStart.setOnClickListener(this);
         btnStop.setOnClickListener(this);
@@ -184,6 +186,23 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }catch(IllegalArgumentException e) {
             Log.d(TAG, e.toString());
         }
+    }
+
+    private void webViewSetup() {
+        WebSettings webSettings = wvUserLoc.getSettings();
+        webSettings.setJavaScriptEnabled(true);
+
+        wvUserLoc.loadUrl(getString(R.string.WebViewAddress) + "?userId=" + getUserId() + "&userLoc=" + getUserLoc());
+    }
+
+    @JavascriptInterface
+    public Integer getUserId() {
+        return 1;
+    }
+
+    @JavascriptInterface
+    public String getUserLoc() {
+        return "3A";
     }
 
     // Send current coordinate to server
