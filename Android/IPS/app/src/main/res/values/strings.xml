@@ -2,7 +2,9 @@
     <string name="app_name">IPS</string>
     <!--<string name="raspberrypi_address">http://192.168.43.215</string>-->
     <!--<string name="raspberrypi_address">http://192.168.0.110</string>-->
-    <string name="raspberrypi_address">http://192.168.41.1</string>
+    <!--<string name="raspberrypi_address">http://192.168.43.1</string>-->
+    <string name="raspberrypi_address">http://192.168.210.193</string>
+    <string name="WebViewAddress">http://192.168.210.193/IPSIndex.html</string>
     <string name="updatePosition">/db_updateposition.php</string>
     <string name="findCoordinate">/findCoordinate.php</string>
 </resources>

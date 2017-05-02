@@ -8,48 +8,53 @@
     android:paddingLeft="10dp"
     android:paddingRight="10dp">
 
-    <LinearLayout
+    <!--<LinearLayout-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:orientation="horizontal">-->
+
+        <!--<TextView-->
+            <!--android:id="@+id/txtWifiInfoResult"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:textColor="@android:color/black"-->
+            <!--android:textStyle="bold"/>-->
+    <WebView
+        android:id="@+id/wvUserLoc"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:layout_height="wrap_content">
 
-        <TextView
-            android:id="@+id/txtWifiInfoResult"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="@android:color/black"
-            android:textStyle="bold"/>
+    </WebView>
+    <!--</LinearLayout>-->
 
-    </LinearLayout>
+    <!--<LinearLayout-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:orientation="horizontal">-->
 
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        <!--<TextView-->
+            <!--android:id="@+id/txtWifiStateResult"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:textColor="@android:color/black"-->
+            <!--android:textStyle="bold"/>-->
 
-        <TextView
-            android:id="@+id/txtWifiStateResult"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="@android:color/black"
-            android:textStyle="bold"/>
+    <!--</LinearLayout>-->
 
-    </LinearLayout>
+    <!--<LinearLayout-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:orientation="horizontal"-->
+        <!--android:layout_marginBottom="50dp">-->
 
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginBottom="50dp">
+        <!--<TextView-->
+            <!--android:id="@+id/txtIsWifiEnabledResult"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:textColor="@android:color/black"-->
+            <!--android:textStyle="bold"/>-->
 
-        <TextView
-            android:id="@+id/txtIsWifiEnabledResult"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="@android:color/black"
-            android:textStyle="bold"/>
-
-    </LinearLayout>
+    <!--</LinearLayout>-->
 
     <LinearLayout
         android:orientation="vertical"
@@ -58,22 +63,22 @@
         android:paddingLeft="10dp"
         android:paddingRight="10dp">
 
-        <ScrollView
-            android:id="@+id/SCROLLER_ID"
-            android:layout_width="match_parent"
-            android:layout_height="150dp"
-            android:scrollbars="vertical"
-            android:fillViewport="true">
+        <!--<ScrollView-->
+            <!--android:id="@+id/SCROLLER_ID"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="150dp"-->
+            <!--android:scrollbars="vertical"-->
+            <!--android:fillViewport="true">-->
 
-            <TextView
-                android:id="@+id/txtView"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textAlignment="center"
-                android:background="@android:color/white"
-                android:layout_marginBottom="10dp"/>
+            <!--<TextView-->
+                <!--android:id="@+id/txtView"-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:textAlignment="center"-->
+                <!--android:background="@android:color/white"-->
+                <!--android:layout_marginBottom="10dp"/>-->
 
-        </ScrollView>
+        <!--</ScrollView>-->
         <Button
             android:id="@+id/btnStart"
             android:layout_width="match_parent"
@@ -87,5 +92,4 @@
             android:text="Stop" />
 
     </LinearLayout>
-
 </LinearLayout>

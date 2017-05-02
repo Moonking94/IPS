@@ -11,7 +11,10 @@ import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Display;
 import android.view.View;
+import android.view.WindowManager;
+import android.webkit.WebView;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -40,8 +43,9 @@ import java.util.Map;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener  {
 
-    private TextView txtResult, txtWifiInfoResult, txtWifiStateResult, txtIsWifiEnabledResult;
+    //private TextView txtResult, txtWifiInfoResult, txtWifiStateResult, txtIsWifiEnabledResult;
     private Button btnStart, btnStop;
+    private WebView wvUserLoc;
 
     private List<RouterInfo> listRI = new LinkedList<>();
     private List<RouterInfo> selRI = new LinkedList<>();
@@ -57,7 +61,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private Handler h = new Handler();
     private Runnable runAvg, runMode, runKalman, runDbm;
 
-    private volatile boolean sendAllow = true;
+    private volatile boolean sendAllow = false;
 
     private final static String TAG = "MainActivity";
 
@@ -66,7 +70,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         @Override
         public void onReceive(Context context, Intent intent) {
             List<ScanResult> result = wifiMgr.getScanResults();
-            txtResult.setText("");
+            //txtResult.setText("");
             for(int i = 0;i<result.size();i++) {
                 String ssid = result.get(i).SSID;
                 String bssid = result.get(i).BSSID;
@@ -76,12 +80,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 double distance = calculateDistance(wifiDb, frequency);
 
                 if(ssid.contains("IPS_AP") || ssid.contains("IPS-AP")) {
-                    txtResult.append("SSID: " + ssid + "\n");
-                    txtResult.append("BSSID: " + bssid + "\n");
-                    txtResult.append("Level: " + wifiDb + "\n");
-                    txtResult.append("Frequency: " + frequency + "\n");
-                    txtResult.append("Signal Level: " + level + "\n");
-                    txtResult.append("Distance: " + new DecimalFormat("#.##").format(distance) + " m\n\n");
+//                    txtResult.append("SSID: " + ssid + "\n");
+//                    txtResult.append("BSSID: " + bssid + "\n");
+//                    txtResult.append("Level: " + wifiDb + "\n");
+//                    txtResult.append("Frequency: " + frequency + "\n");
+//                    txtResult.append("Signal Level: " + level + "\n");
+//                    txtResult.append("Distance: " + new DecimalFormat("#.##").format(distance) + " m\n\n");
 
                     Log.d(TAG, "Distance before average: " + new DecimalFormat("#.##").format(distance) + " m, RRSI : " + wifiDb);
 
@@ -109,18 +113,21 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        txtWifiInfoResult = (TextView)findViewById(R.id.txtWifiInfoResult);
-        txtWifiStateResult = (TextView)findViewById(R.id.txtWifiStateResult);
-        txtIsWifiEnabledResult = (TextView)findViewById(R.id.txtIsWifiEnabledResult);
+//        txtWifiInfoResult = (TextView)findViewById(R.id.txtWifiInfoResult);
+//        txtWifiStateResult = (TextView)findViewById(R.id.txtWifiStateResult);
+//        txtIsWifiEnabledResult = (TextView)findViewById(R.id.txtIsWifiEnabledResult);
 
-        txtResult = (TextView)findViewById(R.id.txtView);
+        //txtResult = (TextView)findViewById(R.id.txtView);
         btnStart = (Button)findViewById(R.id.btnStart);
         btnStop = (Button)findViewById(R.id.btnStop);
+        wvUserLoc = (WebView)findViewById(R.id.wvUserLoc);
 
         wifiMgr = (WifiManager) getApplicationContext().getSystemService(WIFI_SERVICE);
-        // Register Broadcast Receiver
-        if (receiver == null)
-            receiver = new WiFiScanReceiver(this);
+
+        wvUserLoc.getSettings().setJavaScriptEnabled(true);
+        wvUserLoc.getSettings().setLoadWithOverviewMode(true);
+        wvUserLoc.getSettings().setUseWideViewPort(true);
+        wvUserLoc.loadUrl(getString(R.string.WebViewAddress));
 
         btnStart.setOnClickListener(this);
         btnStop.setOnClickListener(this);
@@ -163,10 +170,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     // Stop all the activity of WiFi Scan and clear the text.
     private void stop() {
-        txtWifiInfoResult.setText("");
-        txtWifiStateResult.setText("");
-        txtIsWifiEnabledResult.setText("");
-        txtResult.setText("");
+//        txtWifiInfoResult.setText("");
+//        txtWifiStateResult.setText("");
+//        txtIsWifiEnabledResult.setText("");
+//        txtResult.setText("");
         listRI.clear();
         linkmapDbm.clear();
         h.removeCallbacks(runAvg);
