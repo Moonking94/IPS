@@ -38,10 +38,13 @@ if(isset($_POST["locationName"])) {
 		/* close statement */
 		mysqli_stmt_close($stmt);
     }
-    $response['data'] = $ap_info;
+    $response['responseError'] = FALSE;
+    $response['responseMsg'] = "Get access point successful !";
+    $response['responseData'] = $ap_info;
 	echo json_encode($response);
 } else {
-    $response['error_message'] = "Missing required parameters";
+    $response['responseError'] = TRUE;
+    $response['responseMsg'] = "Missing required parameters";
 	echo json_encode($response);
 }
 ?>

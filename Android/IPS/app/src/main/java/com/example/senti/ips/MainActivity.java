@@ -189,8 +189,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void webViewSetup() {
+
+        //wvUserLoc.setInitialScale(1);
         WebSettings webSettings = wvUserLoc.getSettings();
         webSettings.setJavaScriptEnabled(true);
+        webSettings.setLoadWithOverviewMode(true);
+        webSettings.setUseWideViewPort(true);
+        wvUserLoc.setScrollBarStyle(WebView.SCROLLBARS_OUTSIDE_OVERLAY);
+        wvUserLoc.setScrollbarFadingEnabled(false);
 
         wvUserLoc.loadUrl(getString(R.string.WebViewAddress) + "?userId=" + getUserId() + "&userLoc=" + getUserLoc());
     }

@@ -37,11 +37,15 @@ if(isset($_POST["locationName"]) && isset($_POST["userId"])) {
 		/* close statement */
 		mysqli_stmt_close($stmt);
     }
-    $response['data'] = $boundary_info;
+
+    $response['responseError'] = FALSE;
+    $response['responseMsg'] = "Get boundary successful !";
+    $response['responseData'] = $boundary_info;
 	echo json_encode($response);
 
 } else {
-    $response['error_message'] = "Missing required parameters";
+	$response['responseError'] = TRUE;
+    $response['responseMsg'] = "Missing required parameters";
 	echo json_encode($response);
 }
 ?>

@@ -1,5 +1,5 @@
 CREATE TABLE user_profile(
-    user_id		INT NOT NULL AUTO_INCREMENT,
+    user_id		    INT NOT NULL AUTO_INCREMENT,
     first_name		VARCHAR(50),
     last_name		VARCHAR(50),
     
@@ -8,35 +8,35 @@ CREATE TABLE user_profile(
 
 CREATE TABLE location_profile(
     location_id		INT NOT NULL AUTO_INCREMENT,
-    name		VARCHAR(200),
+    name		    VARCHAR(200),
     location_desc	VARCHAR(200),
-    status		CHAR(1),
+    status		    CHAR(1),
 
     PRIMARY KEY(location_id)
 );
 
 CREATE TABLE router_profile(
     router_id		INT NOT NULL AUTO_INCREMENT,
-    ssid		VARCHAR(50),
-    bssid		VARCHAR(30) UNIQUE,
+    ssid		    VARCHAR(50),
+    bssid		    VARCHAR(30) UNIQUE,
     frequency		double,
-    xaxis		FLOAT,
-    yaxis		FLOAT,
-    zaxis		FLOAT,
+    xaxis		    FLOAT,
+    yaxis		    FLOAT,
+    zaxis		    FLOAT,
     location_id		INT,
-    status		CHAR(1),
+    status		    CHAR(1),
     
     PRIMARY KEY(id),
     FOREIGN KEY(location_id) REFERENCES location_profile(location_id)
 );
 
 CREATE TABLE user_position(
-    row_id		INT NOT NULL AUTO_INCREMENT,
+    row_id		    INT NOT NULL AUTO_INCREMENT,
     router_id		INT,
     signal_str		DOUBLE,
     signal_lvl		INT(11),
     pointNum		INT(11),
-    user_id		INT,
+    user_id		    INT,
     
     PRIMARY KEY(row_id),
     FOREIGN KEY(router_id) REFERENCES router_profile(router_id),
@@ -45,8 +45,8 @@ CREATE TABLE user_position(
 
 CREATE TABLE safezone_profile(
     safezone_id		INT NOT NULL AUTO_INCREMENT,
-    name		VARCHAR(100),
-    user_id		INT,
+    name		    VARCHAR(100),
+    user_id		    INT,
     location_id		INT,
 
     PRIMARY KEY(safezone_id),
@@ -56,9 +56,9 @@ CREATE TABLE safezone_profile(
 
 CREATE TABLE safezone_profile_detail(
     safezonedet_id	INT NOT NULL AUTO_INCREMENT,
-    xaxis		FLOAT,
-    yaxis		FLOAT,
-    zaxis		FLOAT,
+    xaxis		    FLOAT,
+    yaxis		    FLOAT,
+    zaxis		    FLOAT,
     pointNum		INT,
     safezone_id		INT,
 
@@ -72,37 +72,24 @@ INSERT INTO `user_profile`(`first_name`, `last_name`) VALUES
 ("Wong", "Hung Lui");
 
 INSERT INTO `location_profile` (`name`, `location_desc`, `status`) VALUES
- 
 ('3A', 'Block G 3A, Phileodamansara 1', 'A');
 
 INSERT INTO `safezone_profile` (`name`, `user_id`, `location_id`) VALUES 
 ('Room 1', '1', '1');
 
 INSERT INTO `router_profile` (`ssid`, `bssid`, `frequency`, `xaxis`, `yaxis`, `zaxis`, `location_id`, `status`) VALUES
- 
 ('LenovoS650', '6e:5f:1c:d5:c8:b1', 2437, 0, 0, 50, 1, 'I'),
-
 ('MoonPIAP', 'b8:27:eb:1b:c5:23', 2437, 0, 50, 50, 1, 'I'),
-
 ('Jycans', 'e8:50:8b:07:43:fb', 2462, 0, 450, 50, 1, 'I'),
-
 ('PiJeff', 'b8:27:eb:81:20:99', 2437, 150, 250, 50, 1, 'I'),
-
 ('PiAP', 'b8:27:eb:06:43:df', 2437, 150, 0, 50, 1, 'I'),
-
 ('Redmi222', '38:a4:ed:68:02:e5', 2437, 400, 0, 50, 1, 'I'),
 ('PiGary', 'b8:27:eb:34:be:ab', 2437, 300, 50, 50, 1, 'I'),
-
 ('IPS_AP1', '5e:cf:7f:f1:a3:5d', 2412, 0, 50, 50, 1, 'A'),
-
 ('IPS_AP2', '5e:cf:7f:f1:a2:94', 2412, 150, 0, 50, 1, 'A'),
-
 ('IPS-AP3', '5e:cf:7f:f1:a2:19', 2412, 150, 250, 50, 1, 'A'),
-
 ('IPS_AP4', '5e:cf:7f:f1:a2:93', 2412, 300, 50, 50, 1, 'A'),
-
 ('IPS_AP5', '5e:cf:7f:f1:a3:5f', 2412, 0, 0, 50, 1, 'I'),
-
 ('IPS_AP6', '5e:cf:7f:f1:a2:7a', 2412, 0, 0, 50, 1, 'I');
 
 INSERT INTO `safezone_profile_detail` (`xaxis`, `yaxis`, `zaxis`, `pointNum`, `safezone_id`) VALUES 

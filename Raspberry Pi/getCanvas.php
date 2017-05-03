@@ -36,10 +36,8 @@ if(isset($_POST["userId"])) {
 		
 		/* fetch values */
 		while(mysqli_stmt_fetch($stmt)) {
-			 //$distance = (pow(10, (27.55 - (20 * log10($frequency)) + abs($signal_str)) / 20.0))*100; // Will return in meter
-			 $distance = -1 * $signal_str * 4;
-			// $distance = 100 * $distance;
-			// $distance = abs($signal_str) * $signal_lvl ;
+			//$distance = (pow(10, (27.55 - (20 * log10($frequency)) + abs($signal_str)) / 20.0))*100; // Will return in meter
+			$distance = -1 * $signal_str * 4;
 			array_push($pointInfo, array(
 				"router_id" => $router_id, 
 				"ssid" => $ssid, 
@@ -56,10 +54,13 @@ if(isset($_POST["userId"])) {
 		/* close statement */
 		mysqli_stmt_close($stmt);
 	}
-	$response['data'] = $pointInfo;
+	$response['responseError'] = FALSE;
+	$response['responseMsg'] = "Retrieve successful";
+	$response['responseData'] = $pointInfo;
 	echo json_encode($response);
 } else {
-    $response['error_message'] = "Missing required parameters";
+	$response['responseError'] = TRUE;
+    $response['responseMsg'] = "Missing required parameters";
 	echo json_encode($response);
 }
 ?>
